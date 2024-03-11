@@ -31,6 +31,8 @@ public:
 		orangeSphere.EmissionColor = orangeSphere.Albedo;
 		orangeSphere.EmissionPower = 2.0f;
 
+		
+
 		{
 			Sphere sphere;
 			sphere.Position = { 0.0f, 0.0f, 0.0f };
@@ -51,6 +53,21 @@ public:
 			Sphere sphere;
 			sphere.Position = { 0.0f, -101.0f, 0.0f };
 			sphere.Radius = 100.0f;
+			sphere.MaterialIndex = 1;
+			m_Scene.Spheres.push_back(sphere);
+		}
+
+		Material additionalSphere;
+		/*Material& additionalSphere = m_Scene.Materials.emplace_back();
+		additionalSphere.Albedo = { 1.0f, 0.5f, 0.6f };
+		additionalSphere.Roughness = 0.1f;
+		additionalSphere.EmissionColor = additionalSphere.Albedo;
+		additionalSphere.EmissionPower = 0.2f; */
+
+		{
+			Sphere sphere;
+			sphere.Position = { 0.0f, 2.0f, 0.0f };
+			sphere.Radius = 1.0f;
 			sphere.MaterialIndex = 1;
 			m_Scene.Spheres.push_back(sphere);
 		}
@@ -79,7 +96,9 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("Scene");
-		for (size_t i = 0; i < m_Scene.Spheres.size(); i++){
+
+		//changed m_Scene.Spheres.sixe() to 3 in attempt to fix the overload issues
+		for (size_t i = 0; i < 3; i++){
 
 			ImGui::PushID(i);
 
@@ -92,8 +111,8 @@ public:
 
 			ImGui::PopID();
 		}
-
-		for (size_t i = 0; i < m_Scene.Materials.size(); i++){
+		//changed  m_Scene.Materials.size() to 3
+		for (size_t i = 0; i < 3; i++){
 
 			ImGui::PushID(i);
 
@@ -165,8 +184,73 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv){
 					app->Close();
 				}
 
+				//ADD SPHERE BUTTON HERE
+				if (ImGui::MenuItem("Add Sphere")) {
+					//app->AddSphere();
+					
+					Scene m_Scene;
+					Sphere sphere;
+
+					//create the sphere instance
+					Material additionalSphere = m_Scene.Materials.emplace_back();
+					additionalSphere.Albedo = { 0.8f, 0.5f, 0.2f };
+					additionalSphere.Roughness = 0.1f;
+
+					
+					sphere.Position = { 1.5f, 2.0f, 0.0f };
+					sphere.Radius = 1.5f;
+					sphere.MaterialIndex = 1;
+					m_Scene.Spheres.push_back(sphere);
+					
+					
+					//add this to the ExampleLayer
+					int i = m_Scene.Spheres.size();
+					ExampleLayer::ExampleLayer[i].append(additionalSphere, sphere);
+					
+
+					ImGui::Begin("Additional Spheres");
+						//put the sliders on the sidebar
+
+					
+						ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.0f);
+						ImGui::DragFloat("Radius", &sphere.Radius, 0.0f);
+						ImGui::DragInt("Material", &sphere.MaterialIndex, 0.0f, 0, (int)m_Scene.Materials.size() - 1);
+
+						ImGui::Separator();
+
+						//vector subscript error happens on the line right below this... no clue why cause this line runs fine on the first boot up...
+						ImGui::ColorEdit3("Albedo", glm::value_ptr(additionalSphere.Albedo));
+						ImGui::DragFloat("Roughness", &additionalSphere.Roughness, 0.0f, 0.0f, 0.0f);
+						ImGui::DragFloat("Metallic", &additionalSphere.Metallic, 0.0f, 0.0f, 0.0f);
+						ImGui::ColorEdit3("Emission Color", glm::value_ptr(additionalSphere.EmissionColor));
+						ImGui::DragFloat("Emission Power", &additionalSphere.EmissionPower, 0.0f, 0.0f, FLT_MAX);
+
+						ImGui::Separator();
+
+					ImGui::End();
+				}
+
+				bool orbitStatus = false;
+				if (ImGui::MenuItem("Sphere Orbit")) {
+					//change the orbitStatus variable to make it a toggle button
+					if (orbitStatus == false) {
+						orbitStatus = true;
+					}
+					//if spheres are orbitting when button is clicked again this will stop them.
+					else {
+						orbitStatus = false;
+					}
+					//get each spheres x,y,z positions
+					//start the loop for incrementing x,z and maybe y by using radian functions to make the orbit shape
+					while (orbitStatus == true) {
+						
+					}
+					ImGui::End();
+				}
+
 				ImGui::EndMenu();
 			}
+
 		});
 	return app;
 }
